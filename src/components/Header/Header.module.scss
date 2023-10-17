@@ -1,0 +1,25 @@
+.header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 22px;
+  font-size: 24px;
+}
+
+.logo {
+  margin: 0 auto 0 0;
+}
+
+.sign-button {
+  height: 50px;
+}
+
+button span {
+  font-size: 22px;
+}
+
+.sign-up-button {
+  color: #52C41A;
+  border-color: #52C41A;
+}
