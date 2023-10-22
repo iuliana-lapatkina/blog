@@ -19,6 +19,10 @@ function Articles() {
   const page = useSelector((state) => state.blog.currentPage);
   const loading = useSelector((state) => state.blog.loading);
   const error = useSelector((state) => state.blog.error);
+  const token = useSelector((state) => state.blog.token);
+  const name = useSelector((state) => state.blog.username);
+  const email = useSelector((state) => state.blog.email);
+  const password = useSelector((state) => state.blog.password);
 
   useEffect(() => {
     dispatch(getArticles(page));

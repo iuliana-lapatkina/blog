@@ -27,77 +27,129 @@ export const getSingleArticle = createAsyncThunk('blog/getSingleArticle', async 
     }
 
     const data = await res.json();
+    console.log(data);
     return data;
   } catch (err) {
     return rejectWithValue(err.message);
   }
 });
 
-// export default class MovieService {
-//   options = {
-//     method: 'GET',
-//     headers: {
-//       accept: 'application/json',
-//     },
-//   };
+export const addUser = createAsyncThunk('blog/addUser', async ([username, email, password], { rejectWithValue }) => {
+  try {
+    const postOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json;charset=utf-8' },
+      body: JSON.stringify({
+        user: {
+          username: `${username}`,
+          email: `${email}`,
+          password: `${password}`,
+        },
+      }),
+    };
 
-//   _apiKey = '95e427b0bde951f0359ccb24563acfed';
+    const res = await fetch(`${_apiBase}/users`, postOptions);
+    console.log(res);
 
-//   _apiBase = 'https://api.themoviedb.org/3';
+    if (!res.ok) {
+      throw new Error(`${res.status}`);
+    }
 
-//   urlPopular = '/movie/popular?language=en-US';
+    const data = await res.json();
+    console.log(data);
+    return data;
+  } catch (err) {
+    return rejectWithValue(err.message);
+  }
+});
 
-//   urlSearch = '/search/movie?include_adult=false&language=en-US';
+export const signIn = createAsyncThunk('blog/signIn', async ([email, password, token], { rejectWithValue }) => {
+  console.log('signIn');
+  try {
+    const postOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        Authorization: `Token ${token}`,
+      },
+      body: JSON.stringify({
+        user: {
+          email: `${email}`,
+          password: `${password}`,
+        },
+      }),
+    };
 
-//   async getResource(url) {
-//     const res = await fetch(`${this._apiBase}${url}`, this.options);
+    const res = await fetch(`${_apiBase}/users/login`, postOptions);
 
-//     if (!res.ok) {
-//       throw new Error(`Could not fetch ${this._apiBase}${url}, recieved ${res.status}`);
-//     }
+    if (!res.ok) {
+      throw new Error(`${res.status}`);
+    }
 
-//     return res.json();
-//   }
+    const data = await res.json();
+    console.log(data);
+    return data;
+  } catch (err) {
+    return rejectWithValue(err.message);
+  }
+});
 
-//   async createGuestSession() {
-//     const body = await this.getResource(`/authentication/guest_session/new?api_key=${this._apiKey}`);
-//     return body.guest_session_id;
-//   }
+export const getUser = createAsyncThunk('blog/getUser', async (token, { rejectWithValue }) => {
+  try {
+    const getOptions = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        Authorization: `Token ${token}`,
+      },
+    };
 
-//   async getPopularMovies(page = 1) {
-//     const body = await this.getResource(`${this.urlPopular}&page=${page}&api_key=${this._apiKey}`);
-//     return body;
-//   }
+    const res = await fetch(`${_apiBase}/user`, getOptions);
 
-//   async searchMovies(page, text) {
-//     const body = await this.getResource(`${this.urlSearch}&query=${text}&page=${page}&api_key=${this._apiKey}`);
-//     return body;
-//   }
+    if (!res.ok) {
+      throw new Error(`${res.status}`);
+    }
 
-//   async getGenres() {
-//     const body = await this.getResource(`/genre/movie/list?language=en&api_key=${this._apiKey}`);
-//     return body.genres;
-//   }
+    const data = await res.json();
+    console.log(data);
+    return data;
+  } catch (err) {
+    return rejectWithValue(err.message);
+  }
+});
 
-//   async addRateMovie(sessionId, id, rating) {
-//     const postOptions = {
-//       method: 'POST',
-//       headers: { accept: 'application/json', 'Content-Type': 'application/json;charset=utf-8' },
-//       body: JSON.stringify({ value: rating }),
-//     };
-//     const url = `${this._apiBase}/movie/${id}/rating?guest_session_id=${sessionId}&api_key=${this._apiKey}`;
+export const editProfile = createAsyncThunk(
+  'blog/editProfile',
+  async ([username, email, password, image, token], { rejectWithValue }) => {
+    try {
+      console.log([username, email, password, image, token]);
+      const getOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+          Authorization: `Token ${token}`,
+        },
+        body: JSON.stringify({
+          user: {
+            username: `${username}`,
+            email: `${email}`,
+            password: `${password}`,
+            image: `${image}`,
+          },
+        }),
+      };
 
-//     const res = await fetch(url, postOptions);
+      const res = await fetch(`${_apiBase}/user`, getOptions);
 
-//     if (!res.ok) {
-//       throw new Error(`Could not fetch ${this._apiBase}${url}, recieved ${res.status}`);
-//     }
-//   }
+      if (!res.ok) {
+        throw new Error(`${res.status}`);
+      }
 
-//   async getRatedMovies(sessionId, page = 1) {
-//     const body = await this.getResource(
-//       `/guest_session/${sessionId}/rated/movies?api_key=${this._apiKey}&page=${page}`
-//     );
-//     return body;
-//   }
-// }
+      const data = await res.json();
+      console.log(data);
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);

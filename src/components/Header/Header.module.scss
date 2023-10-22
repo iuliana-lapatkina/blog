@@ -2,24 +2,71 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 20px;
-  padding: 15px 22px;
-  font-size: 24px;
+  gap: 30px;
+  padding: 8px 25px;
+  font-size: 20px;
 }
 
 .logo {
+  text-decoration: none;
   margin: 0 auto 0 0;
+
+    &:link,
+    &:hover,
+    &:visited {
+      color: initial
+    }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 400;
+  }
 }
 
-.sign-button {
-  height: 50px;
-}
 
 button span {
-  font-size: 22px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+.sign-in-button {
+  margin-right: -12px;
 }
 
 .sign-up-button {
+  height: 44px;
   color: #52C41A;
   border-color: #52C41A;
+}
+
+.create-button {
+  width: 124px;
+  height: 32px;
+  color: #52C41A;
+  border-color: #52C41A;
+
+  span {
+    font-size: 16px;
+  }
+}
+
+.profile-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px;
+  height: 48px;
+  vertical-align: middle;
+
+  img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit:cover;
+  }
+}
+
+.log-out-button {
+  height: 44px;
+  border-color: #000;
 }

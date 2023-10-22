@@ -82,7 +82,7 @@ function Article(props) {
                   currentTarget.src = avatar;
                   currentTarget.onerror = null;
                 }}
-                alt="Аватар автора"
+                alt="User's avatar"
               />
             ) : null}
           </Flex>
