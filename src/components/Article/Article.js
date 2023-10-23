@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, Flex } from 'antd';
+import { Card, Flex, Popconfirm, Button } from 'antd';
 import { format, parseISO } from 'date-fns';
 import classNames from 'classnames/bind';
 import Markdown from 'markdown-to-jsx';
 
-import { getSingleArticle } from '../../services/blogService';
+import { getSingleArticle, deleteArticle } from '../../services/blogService';
 import TagList from '../TagList';
 
 import avatar from './user.jpg';
@@ -17,9 +17,12 @@ function Article(props) {
 
   const dispatch = useDispatch();
 
+  const token = useSelector((state) => state.blog.token);
   const article = useSelector((state) => state.blog.currentArticle);
+  const username = useSelector((state) => state.blog.username);
 
   const { id } = useParams();
+  const editLink = `/articles/${id}/edit`;
 
   const className = classNames({ [styles.isSingle]: !articleInList });
 
@@ -54,6 +57,10 @@ function Article(props) {
       );
   }
 
+  const deleteArt = () => {
+    dispatch(deleteArticle([token, id]));
+  };
+
   return item ? (
     <Card className={`${styles.card} ${className}`} bordered="false" bodyStyle={{ padding: '0' }}>
       <div className={styles['title-block']}>
@@ -86,6 +93,25 @@ function Article(props) {
               />
             ) : null}
           </Flex>
+          {!articleInList && item.author && item.author.username && username === item.author.username ? (
+            <Flex className={styles.buttons} gap="small">
+              <Popconfirm
+                className={styles.delete}
+                title="Delete the task"
+                description="Are you sure to delete this task?"
+                onConfirm={deleteArt}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button danger>Delete</Button>
+              </Popconfirm>
+              <Link to={editLink}>
+                <button className={styles.edit} type="button">
+                  Edit
+                </button>
+              </Link>
+            </Flex>
+          ) : null}
         </div>
       </div>
       {!articleInList && article.body ? (

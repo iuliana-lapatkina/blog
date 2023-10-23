@@ -1,20 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 
 import { addUser } from '../../services/blogService';
+import { savePassword } from '../../store/blogSlice';
 
 import styles from './SignUp.module.scss';
 
 function SignUp() {
   const dispatch = useDispatch();
 
-  const isLogged = useSelector((state) => state.blog.isLogged);
-
   const {
     register,
-    formState: { errors, isValid },
+    formState: { errors },
     handleSubmit,
     getValues,
     watch,
@@ -23,9 +22,10 @@ function SignUp() {
   });
 
   const onSubmit = (data) => {
-    if (!isLogged) {
-      dispatch(addUser([data.username, data.email, data.password]));
-    }
+    const userPassword = data.password;
+    localStorage.setItem('password', userPassword);
+    dispatch(savePassword(userPassword));
+    dispatch(addUser([data.username, data.email, data.password]));
   };
 
   return (
@@ -111,7 +111,7 @@ function SignUp() {
           <input className={styles.approve} type="checkbox" name="approve" required />
           <span>I agree to the processing of my personal information</span>
         </label>
-        <button type="submit" className={styles.submit} name="submit" disabled={!isValid}>
+        <button type="submit" className={styles.submit} name="submit">
           Create
         </button>
         <div className={styles['sign-in']}>

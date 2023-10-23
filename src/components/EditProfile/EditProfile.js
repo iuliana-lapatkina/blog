@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 
 import { getUser, editProfile } from '../../services/blogService';
+import { savePassword } from '../../store/blogSlice';
 
 import styles from './EditProfile.module.scss';
 
@@ -11,6 +12,7 @@ function EditProfile() {
   const token = useSelector((state) => state.blog.token);
   const userName = useSelector((state) => state.blog.username);
   const userEmail = useSelector((state) => state.blog.email);
+  const userPassword = useSelector((state) => state.blog.password);
   const userImage = useSelector((state) => state.blog.image);
 
   const {
@@ -22,6 +24,7 @@ function EditProfile() {
     defaultValues: {
       username: userName,
       email: userEmail,
+      password: userPassword,
       image: userImage,
     },
   });
@@ -31,6 +34,7 @@ function EditProfile() {
   });
 
   const onSubmit = (data) => {
+    dispatch(savePassword(data.password));
     dispatch(editProfile([data.username, data.email, data.password, data.image, token]));
   };
 

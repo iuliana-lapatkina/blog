@@ -31,9 +31,36 @@
 
 .right {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   flex-basis: 19%;
   max-width: 19%;
   flex-direction: row;
+}
+
+.buttons {
+  flex-basis: 100%;
+}
+
+.delete,
+.edit {
+  cursor: pointer;
+  height: 40px;
+  width: 80px;
+  font-size: 16px;
+  line-height: 24px;
+  background-color: #fff;
+  border-radius: 4px;
+}
+
+.delete {
+  color: #F5222D;
+  border: 1px solid #F5222D;
+}
+
+.edit {
+  color: #1890FF;
+  border: 1px solid #1890FF;
 }
 
 .title-block {

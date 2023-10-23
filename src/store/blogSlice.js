@@ -14,6 +14,7 @@ const blogSlice = createSlice({
     isLogged: false,
     token: null,
     username: null,
+    password: null,
     email: null,
     image: null,
   },
@@ -26,6 +27,11 @@ const blogSlice = createSlice({
       state.token = payload.userToken;
       state.username = payload.userName;
       state.email = payload.userMail;
+      state.password = payload.userPassword;
+      state.image = payload.userImage;
+    },
+    savePassword(state, { payload }) {
+      state.password = payload;
     },
     logOut(state, { payload }) {
       state.isLogged = payload;
@@ -62,18 +68,18 @@ const blogSlice = createSlice({
         state.loading = false;
         state.error = true;
       })
-      .addCase(addUser.pending, (state, { payload }) => {
+      .addCase(addUser.pending, (state) => {
         state.error = false;
       })
       .addCase(addUser.fulfilled, (state, { payload }) => {
         state.isLogged = true;
         state.token = payload.user.token;
-        state.username = payload.user.username;
         state.email = payload.user.email;
-        state.image = payload.user.image;
+        state.username = payload.user.username;
         localStorage.setItem('token', payload.user.token);
-        localStorage.setItem('email', payload.user.email);
         localStorage.setItem('username', payload.user.username);
+        localStorage.setItem('email', payload.user.email);
+        localStorage.setItem('image', null);
       })
       .addCase(addUser.rejected, (state) => {
         state.loading = false;
@@ -88,6 +94,10 @@ const blogSlice = createSlice({
         state.username = payload.user.username;
         state.email = payload.user.email;
         state.image = payload.user.image;
+        localStorage.setItem('token', payload.user.token);
+        localStorage.setItem('username', payload.user.username);
+        localStorage.setItem('email', payload.user.email);
+        localStorage.setItem('image', payload.user.image);
       })
       .addCase(signIn.rejected, (state) => {
         state.loading = false;
@@ -99,8 +109,6 @@ const blogSlice = createSlice({
       .addCase(getUser.fulfilled, (state, { payload }) => {
         state.username = payload.user.username;
         state.email = payload.user.email;
-        state.password = payload.user.password;
-        console.log(payload.user.password);
         state.image = payload.user.image;
       })
       .addCase(getUser.rejected, (state) => {
@@ -113,8 +121,10 @@ const blogSlice = createSlice({
       .addCase(editProfile.fulfilled, (state, { payload }) => {
         state.username = payload.user.username;
         state.email = payload.user.email;
-        state.password = payload.user.password;
         state.image = payload.user.image;
+        localStorage.setItem('username', payload.user.username);
+        localStorage.setItem('email', payload.user.email);
+        localStorage.setItem('image', payload.user.image);
       })
       .addCase(editProfile.rejected, (state) => {
         state.loading = false;
@@ -125,6 +135,6 @@ const blogSlice = createSlice({
   devTools: true,
 });
 
-export const { getPage, saveData, logOut } = blogSlice.actions;
+export const { getPage, saveData, logOut, savePassword } = blogSlice.actions;
 
 export default blogSlice.reducer;

@@ -39,7 +39,7 @@ function Header() {
         </>
       ) : (
         <>
-          <Link to="/">
+          <Link to="/new-article">
             <Button className={styles['create-button']} type="button">
               Create Article
             </Button>

@@ -10,9 +10,11 @@ import Article from '../Article';
 import SignUp from '../SignUp';
 import SignIn from '../SignIn';
 import EditProfile from '../EditProfile';
+import NewArticle from '../NewArticle';
 import ErrorPage from '../ErrorPage';
 import RequireAuth from '../../hoc/RequireAuth';
 import { saveData } from '../../store/blogSlice';
+import { signIn } from '../../services/blogService';
 
 import styles from './App.module.scss';
 
@@ -20,12 +22,13 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (localStorage.length !== 0) {
-      const userToken = localStorage.getItem('token');
-      const userName = localStorage.getItem('token');
-      const userMail = localStorage.getItem('token');
-      dispatch(saveData(userToken, userName, userMail));
-    }
+    const userToken = localStorage.getItem('token');
+    const userName = localStorage.getItem('username');
+    const userMail = localStorage.getItem('email');
+    const userImage = localStorage.getItem('image');
+    const userPassword = localStorage.getItem('password');
+    dispatch(saveData({ userToken, userName, userMail, userPassword, userImage }));
+    dispatch(signIn([userMail, userPassword, userToken]));
   }, []);
 
   return (
@@ -39,6 +42,22 @@ function App() {
             <Route path="/profile" element={<EditProfile />} />
             <Route path="/articles" element={<Articles />} />
             <Route path="/articles/:id" element={<Article />} />
+            <Route
+              path="/articles/:id/edit"
+              element={
+                <RequireAuth>
+                  <NewArticle />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/new-article"
+              element={
+                <RequireAuth>
+                  <NewArticle />
+                </RequireAuth>
+              }
+            />
             <Route path="*" element={<ErrorPage />} />
           </Route>
         </Routes>
