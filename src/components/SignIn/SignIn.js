@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { CloseOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 
 import { signIn } from '../../services/blogService';
 import { savePassword } from '../../store/blogSlice';
@@ -19,6 +19,12 @@ function SignIn() {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.blog.token);
   const userEmail = useSelector((state) => state.blog.email);
+
+  const [error, setError] = useState(false);
+
+  const success = () => {
+    message.info('You have successfully sign in');
+  };
 
   const {
     register,
@@ -36,7 +42,11 @@ function SignIn() {
     dispatch(savePassword(data.password));
     dispatch(signIn([data.email, data.password, token])).then((res) => {
       if (res.meta.requestStatus === 'fulfilled') {
+        success();
         navigate(fromPage, { replace: true });
+      }
+      if (res.meta.requestStatus === 'rejected') {
+        setError(true);
       }
     });
   };
@@ -87,9 +97,13 @@ function SignIn() {
           <div>{errors?.password && <p className={styles.warning}>{errors?.password?.message || 'Error!'}</p>}</div>
         </label>
 
-        <button type="submit" className={styles.submit} name="submit">
-          Login
-        </button>
+        <div>
+          {error && <p className={styles.warning}>The username or password is incorrect.</p>}
+          <button type="submit" className={styles.submit} name="submit">
+            Login
+          </button>
+        </div>
+
         <div className={styles['sign-up']}>
           <span>Don’t have an account?</span>
           <Link to="/sign-up"> Sign Up.</Link>
