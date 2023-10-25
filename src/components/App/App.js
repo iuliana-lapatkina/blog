@@ -28,7 +28,9 @@ function App() {
     const userImage = localStorage.getItem('image');
     const userPassword = localStorage.getItem('password');
     dispatch(saveData({ userToken, userName, userMail, userPassword, userImage }));
-    dispatch(signIn([userMail, userPassword, userToken]));
+    if (userToken && userMail && userPassword) {
+      dispatch(signIn([userMail, userPassword, userToken]));
+    }
   }, []);
 
   return (
