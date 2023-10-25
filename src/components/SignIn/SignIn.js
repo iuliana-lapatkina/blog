@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
+import { CloseOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 
 import { signIn } from '../../services/blogService';
 import { savePassword } from '../../store/blogSlice';
@@ -17,7 +19,6 @@ function SignIn() {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.blog.token);
   const userEmail = useSelector((state) => state.blog.email);
-  const userPassword = useSelector((state) => state.blog.password);
 
   const {
     register,
@@ -33,12 +34,21 @@ function SignIn() {
   const onSubmit = (data) => {
     localStorage.setItem('password', data.password);
     dispatch(savePassword(data.password));
-    dispatch(signIn([data.email, data.password, token]));
+    dispatch(signIn([data.email, data.password, token])).then((res) => {
+      if (res.meta.requestStatus === 'fulfilled') {
+        navigate(fromPage, { replace: true });
+      }
+    });
   };
+
+  const goBack = () => navigate(-1);
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Sign In</h2>
+      <Button onClick={goBack} className={styles['close-button']}>
+        <CloseOutlined style={{ fontSize: '25px' }} />
+      </Button>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <label htmlFor="email" className={styles.label}>
           Email address

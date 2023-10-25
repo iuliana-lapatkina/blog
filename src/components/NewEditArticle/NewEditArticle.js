@@ -1,38 +1,48 @@
-import React, { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm, useFieldArray } from 'react-hook-form';
+import { Button, message } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 
 import { createArticle, editArticle, getSingleArticle } from '../../services/blogService';
 
-import styles from './NewArticle.module.scss';
+import styles from './NewEditArticle.module.scss';
 
-function NewArticle() {
+function NewEditArticle() {
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.blog.token);
+  const navigate = useNavigate();
 
   const { id } = useParams();
-  console.log(id);
+
+  const [dirty, setDirty] = useState(true);
+
+  const token = useSelector((state) => state.blog.token);
+  const article = useSelector((state) => state.blog.currentArticle);
 
   useEffect(() => {
     if (id) {
-      dispatch(getSingleArticle(id));
+      dispatch(getSingleArticle([id, token]));
     }
-  }, [id]);
+  }, [id, token]);
 
-  const article = useSelector((state) => state.blog.currentArticle);
+  const goBack = () => navigate(-1);
+
   const articleTitle = article.title;
   const articleDescription = article.description;
   const articleBody = article.body;
-  const tag = article.tagList.map((item) => {
-    return { name: item };
-  });
+  let tag = 0;
+  if (article.tagList) {
+    tag = article.tagList.map((item) => {
+      return { name: item };
+    });
+  }
 
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -48,27 +58,45 @@ function NewArticle() {
     name: 'tags',
   });
 
+  const successEdit = () => {
+    message.info('Article has been successfully edited');
+  };
+
+  const successCreate = () => {
+    message.info('Article has been successfully created');
+  };
+
   const onSubmit = (data) => {
-    const tagslist = data.tags.map((item) => {
+    if (!isDirty) {
+      setDirty(false);
+      return;
+    }
+    const tagsList = data.tags.map((item) => {
       return item.name.replace(/  +/g, ' ');
     });
-    const tags = tagslist.filter((item, index) => {
-      return tagslist.indexOf(item) === index;
+    const tags = tagsList.filter((item, index) => {
+      return tagsList.indexOf(item) === index;
     });
     const title = data.title.replace(/  +/g, ' ');
-    const description = data.description.replace(/\s/g, ' ');
+    const description = data.description.replace(/  +/g, ' ');
     const text = data.text.replace(/  +/g, ' ');
 
     if (id) {
       dispatch(editArticle([title, description, text, tags, token, id]));
+      successEdit();
     } else {
       dispatch(createArticle([title, description, text, tags, token]));
+      successCreate();
     }
+    goBack();
   };
 
   return (
     <div className={styles.container}>
-      {!id ? <h2 className={styles.title}>Create new article</h2> : <h2 className={styles.title}>Edit article</h2>}
+      <h2 className={styles.title}>{!id ? 'Create new article' : 'Edit article'}</h2>
+      <Button onClick={goBack} className={styles['close-button']}>
+        <CloseOutlined style={{ fontSize: '25px' }} />
+      </Button>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <label htmlFor="title" className={styles.label}>
           Title
@@ -156,13 +184,15 @@ function NewArticle() {
             Add Tag
           </button>
         )}
-
-        <button type="submit" className={styles.submit} name="submit">
-          Send
-        </button>
+        <div>
+          {!dirty && <p className={styles.warning}>The data has not changed.</p>}
+          <button type="submit" className={styles.submit} name="submit">
+            Send
+          </button>
+        </div>
       </form>
     </div>
   );
 }
 
-export default NewArticle;
+export default NewEditArticle;

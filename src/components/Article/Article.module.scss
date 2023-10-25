@@ -1,7 +1,7 @@
 .card {
   display: flex;
   padding: 15px;
-  height: 140px;
+  height: 146px;
   margin-bottom: 20px;
 
   div {
@@ -65,14 +65,14 @@
 
 .title-block {
   display: flex;
-  align-items: start;
+  align-items: flex-start;
   margin-bottom: 25px;
 }
 
 .title-likes {
   display: flex;
-  gap: 20px;
-  line-height: 32px;
+  gap: 14px;
+  line-height: 27px;
 
   &.isSingle {
     align-items: start;
@@ -99,12 +99,16 @@
   flex-basis: 9%;
   display: flex;
   font-size: 21px;
-  line-height: 34px;
+  line-height: 38px;
 
   span:first-child {
-    font-size: 34px;
     margin-right: 5px;
+    font-size: 34px;
   }
+}
+
+.like-icon {
+  color: #1890FF;
 }
 
 .description {

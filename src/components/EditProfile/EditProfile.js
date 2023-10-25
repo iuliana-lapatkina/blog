@@ -1,6 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { CloseOutlined } from '@ant-design/icons';
+import { Button, message } from 'antd';
 
 import { getUser, editProfile } from '../../services/blogService';
 import { savePassword } from '../../store/blogSlice';
@@ -9,15 +12,28 @@ import styles from './EditProfile.module.scss';
 
 function EditProfile() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const fromPage = location.state?.from?.pathname || '/';
+  const goBack = () => navigate(-1);
+
+  const [error, setError] = useState(false);
+  const [dirty, setDirty] = useState(true);
+
   const token = useSelector((state) => state.blog.token);
   const userName = useSelector((state) => state.blog.username);
   const userEmail = useSelector((state) => state.blog.email);
   const userPassword = useSelector((state) => state.blog.password);
   const userImage = useSelector((state) => state.blog.image);
 
+  useEffect(() => {
+    dispatch(getUser(token));
+  });
+
   const {
     register,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
     handleSubmit,
   } = useForm({
     mode: 'all',
@@ -29,18 +45,36 @@ function EditProfile() {
     },
   });
 
-  useEffect(() => {
-    dispatch(getUser(token));
-  });
+  const success = () => {
+    message.info('User data has been successfully changed');
+  };
 
   const onSubmit = (data) => {
+    if (!isDirty) {
+      setDirty(false);
+      return;
+    }
     dispatch(savePassword(data.password));
-    dispatch(editProfile([data.username, data.email, data.password, data.image, token]));
+    dispatch(editProfile([data.username, data.email, data.password, data.image, token])).then((res) => {
+      setDirty(false);
+      if (res.meta.requestStatus === 'fulfilled') {
+        setError(false);
+        success();
+        navigate(fromPage);
+      }
+      if (res.meta.requestStatus === 'rejected') {
+        setError(true);
+      }
+    });
+    setDirty(true);
   };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Edit Profile</h2>
+      <Button onClick={goBack} className={styles['close-button']}>
+        <CloseOutlined style={{ fontSize: '25px' }} />
+      </Button>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <label htmlFor="username" className={styles.label}>
           Username
@@ -118,9 +152,13 @@ function EditProfile() {
           <div>{errors?.image && <p className={styles.warning}>{errors?.image?.message || 'Error!'}</p>}</div>
         </label>
 
-        <button type="submit" className={styles.submit} name="submit" disabled={!isValid}>
-          Save
-        </button>
+        <div>
+          {(error && <p className={styles.warning}>A user with the same username or email already exists.</p>) ||
+            (!dirty && <p className={styles.warning}>The data has not changed.</p>)}
+          <button type="submit" className={styles.submit} name="submit" disabled={!isValid}>
+            Save
+          </button>
+        </div>
       </form>
     </div>
   );

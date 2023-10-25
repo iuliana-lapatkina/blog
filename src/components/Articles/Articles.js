@@ -19,14 +19,17 @@ function Articles() {
   const page = useSelector((state) => state.blog.currentPage);
   const loading = useSelector((state) => state.blog.loading);
   const error = useSelector((state) => state.blog.error);
+  const isLogged = useSelector((state) => state.blog.isLogged);
   const token = useSelector((state) => state.blog.token);
-  const name = useSelector((state) => state.blog.username);
-  const email = useSelector((state) => state.blog.email);
-  const password = useSelector((state) => state.blog.password);
 
   useEffect(() => {
-    dispatch(getArticles(page));
-  }, [page, dispatch]);
+    if (isLogged) {
+      dispatch(getArticles([page, token]));
+    }
+    if (!isLogged) {
+      dispatch(getArticles([page]));
+    }
+  }, [isLogged, page, dispatch]);
 
   const elements = articles.map((item) => (
     <Link key={uuidv4()} to={`/articles/${item.slug}`}>

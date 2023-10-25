@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Offline, Online } from 'react-detect-offline';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Alert } from 'antd';
 
 import Layout from '../Layout';
@@ -10,7 +10,7 @@ import Article from '../Article';
 import SignUp from '../SignUp';
 import SignIn from '../SignIn';
 import EditProfile from '../EditProfile';
-import NewArticle from '../NewArticle';
+import NewEditArticle from '../NewEditArticle';
 import ErrorPage from '../ErrorPage';
 import RequireAuth from '../../hoc/RequireAuth';
 import { saveData } from '../../store/blogSlice';
@@ -39,14 +39,21 @@ function App() {
             <Route index element={<Articles />} />
             <Route path="/sign-up" element={<SignUp />} />
             <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/profile" element={<EditProfile />} />
+            <Route
+              path="/profile"
+              element={
+                <RequireAuth>
+                  <EditProfile />
+                </RequireAuth>
+              }
+            />
             <Route path="/articles" element={<Articles />} />
             <Route path="/articles/:id" element={<Article />} />
             <Route
               path="/articles/:id/edit"
               element={
                 <RequireAuth>
-                  <NewArticle />
+                  <NewEditArticle />
                 </RequireAuth>
               }
             />
@@ -54,7 +61,7 @@ function App() {
               path="/new-article"
               element={
                 <RequireAuth>
-                  <NewArticle />
+                  <NewEditArticle />
                 </RequireAuth>
               }
             />

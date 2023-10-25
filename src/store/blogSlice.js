@@ -1,6 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { getArticles, getSingleArticle, addUser, signIn, getUser, editProfile } from '../services/blogService';
+import {
+  getArticles,
+  getSingleArticle,
+  addUser,
+  signIn,
+  getUser,
+  editProfile,
+  putLike,
+  deleteLike,
+} from '../services/blogService';
 
 const blogSlice = createSlice({
   name: 'blog',
@@ -32,6 +41,9 @@ const blogSlice = createSlice({
     },
     savePassword(state, { payload }) {
       state.password = payload;
+    },
+    deleteAvatar(state) {
+      state.image = null;
     },
     logOut(state, { payload }) {
       state.isLogged = payload;
@@ -69,9 +81,12 @@ const blogSlice = createSlice({
         state.error = true;
       })
       .addCase(addUser.pending, (state) => {
+        state.loading = true;
         state.error = false;
       })
       .addCase(addUser.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.error = false;
         state.isLogged = true;
         state.token = payload.user.token;
         state.email = payload.user.email;
@@ -85,10 +100,13 @@ const blogSlice = createSlice({
         state.loading = false;
         state.error = true;
       })
-      .addCase(signIn.pending, (state, { payload }) => {
+      .addCase(signIn.pending, (state) => {
+        state.loading = true;
         state.error = false;
       })
       .addCase(signIn.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.error = false;
         state.isLogged = true;
         state.token = payload.user.token;
         state.username = payload.user.username;
@@ -103,10 +121,13 @@ const blogSlice = createSlice({
         state.loading = false;
         state.error = true;
       })
-      .addCase(getUser.pending, (state, { payload }) => {
+      .addCase(getUser.pending, (state) => {
+        state.loading = true;
         state.error = false;
       })
       .addCase(getUser.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.error = false;
         state.username = payload.user.username;
         state.email = payload.user.email;
         state.image = payload.user.image;
@@ -115,10 +136,13 @@ const blogSlice = createSlice({
         state.loading = false;
         state.error = true;
       })
-      .addCase(editProfile.pending, (state, { payload }) => {
+      .addCase(editProfile.pending, (state) => {
+        state.loading = true;
         state.error = false;
       })
       .addCase(editProfile.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.error = false;
         state.username = payload.user.username;
         state.email = payload.user.email;
         state.image = payload.user.image;
@@ -129,12 +153,36 @@ const blogSlice = createSlice({
       .addCase(editProfile.rejected, (state) => {
         state.loading = false;
         state.error = true;
+      })
+      .addCase(putLike.pending, (state) => {
+        state.loading = true;
+        state.error = false;
+      })
+      .addCase(putLike.fulfilled, (state) => {
+        state.loading = false;
+        state.error = false;
+      })
+      .addCase(putLike.rejected, (state) => {
+        state.loading = false;
+        state.error = true;
+      })
+      .addCase(deleteLike.pending, (state) => {
+        state.loading = true;
+        state.error = false;
+      })
+      .addCase(deleteLike.fulfilled, (state) => {
+        state.loading = false;
+        state.error = false;
+      })
+      .addCase(deleteLike.rejected, (state) => {
+        state.loading = false;
+        state.error = true;
       });
   },
 
   devTools: true,
 });
 
-export const { getPage, saveData, logOut, savePassword } = blogSlice.actions;
+export const { getPage, saveData, logOut, savePassword, deleteAvatar } = blogSlice.actions;
 
 export default blogSlice.reducer;

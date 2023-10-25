@@ -2,14 +2,27 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 
 const _apiBase = 'https://blog.kata.academy/api';
 
-export const getArticles = createAsyncThunk('blog/getArticles', async (page, { rejectWithValue }) => {
+const throwError = (result) => {
+  if (!result.ok) {
+    throw new Error(`${result.status}`);
+  }
+};
+
+export const getArticles = createAsyncThunk('blog/getArticles', async ([page, token = 0], { rejectWithValue }) => {
+  const options = {
+    method: 'GET',
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  };
+
   try {
     const offset = page * 5 - 1;
-    const res = await fetch(`${_apiBase}/articles?offset=${offset}&limit=5`);
-
-    if (!res.ok) {
-      throw new Error(`${res.status}`);
+    let res = await fetch(`${_apiBase}/articles?offset=${offset}&limit=5`);
+    if (token) {
+      res = await fetch(`${_apiBase}/articles?offset=${offset}&limit=5`, options);
     }
+    throwError(res);
 
     const data = await res.json();
     return data;
@@ -18,27 +31,36 @@ export const getArticles = createAsyncThunk('blog/getArticles', async (page, { r
   }
 });
 
-export const getSingleArticle = createAsyncThunk('blog/getSingleArticle', async (id, { rejectWithValue }) => {
-  try {
-    const res = await fetch(`${_apiBase}/articles/${id}`);
+export const getSingleArticle = createAsyncThunk(
+  'blog/getSingleArticle',
+  async ([id, token = 0], { rejectWithValue }) => {
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    };
 
-    if (!res.ok) {
-      throw new Error(`${res.status}`);
+    try {
+      let res;
+      if (token !== 0) {
+        res = await fetch(`${_apiBase}/articles/${id}`, options);
+      } else {
+        res = await fetch(`${_apiBase}/articles/${id}`);
+      }
+      throwError(res);
+
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.message);
     }
-
-    const data = await res.json();
-    console.log(data);
-    return data;
-  } catch (err) {
-    return rejectWithValue(err.message);
   }
-});
+);
 
 export const createArticle = createAsyncThunk(
   'blog/createArticle',
   async ([title, description, text, tags, token], { rejectWithValue }) => {
-    console.log([title, description, text, tags, token]);
-
     try {
       const postOptions = {
         method: 'POST',
@@ -58,13 +80,8 @@ export const createArticle = createAsyncThunk(
       };
 
       const res = await fetch(`${_apiBase}/articles`, postOptions);
-
-      if (!res.ok) {
-        throw new Error(`${res.status}`);
-      }
-
+      throwError(res);
       const data = await res.json();
-      console.log(data);
       return data;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -75,8 +92,6 @@ export const createArticle = createAsyncThunk(
 export const editArticle = createAsyncThunk(
   'blog/editArticle',
   async ([title, description, text, tags, token, id], { rejectWithValue }) => {
-    console.log([title, description, text, tags, token, id]);
-
     try {
       const putOptions = {
         method: 'PUT',
@@ -96,13 +111,8 @@ export const editArticle = createAsyncThunk(
       };
 
       const res = await fetch(`${_apiBase}/articles/${id}`, putOptions);
-
-      if (!res.ok) {
-        throw new Error(`${res.status}`);
-      }
-
+      throwError(res);
       const data = await res.json();
-      console.log(data);
       return data;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -111,7 +121,6 @@ export const editArticle = createAsyncThunk(
 );
 
 export const deleteArticle = createAsyncThunk('blog/deleteArticle', async ([token, id], { rejectWithValue }) => {
-  console.log([token, id]);
   try {
     const deleteOptions = {
       method: 'DELETE',
@@ -121,13 +130,8 @@ export const deleteArticle = createAsyncThunk('blog/deleteArticle', async ([toke
     };
 
     const res = await fetch(`${_apiBase}/articles/${id}`, deleteOptions);
-
-    if (!res.ok) {
-      throw new Error(`${res.status}`);
-    }
-
+    throwError(res);
     const data = await res.json();
-    console.log(data);
     return data;
   } catch (err) {
     return rejectWithValue(err.message);
@@ -135,7 +139,6 @@ export const deleteArticle = createAsyncThunk('blog/deleteArticle', async ([toke
 });
 
 export const addUser = createAsyncThunk('blog/addUser', async ([username, email, password], { rejectWithValue }) => {
-  console.log('addUser');
   try {
     const postOptions = {
       method: 'POST',
@@ -150,13 +153,8 @@ export const addUser = createAsyncThunk('blog/addUser', async ([username, email,
     };
 
     const res = await fetch(`${_apiBase}/users`, postOptions);
-
-    if (!res.ok) {
-      throw new Error(`${res.status}`);
-    }
-
+    throwError(res);
     const data = await res.json();
-    console.log(data);
     return data;
   } catch (err) {
     return rejectWithValue(err.message);
@@ -164,7 +162,6 @@ export const addUser = createAsyncThunk('blog/addUser', async ([username, email,
 });
 
 export const signIn = createAsyncThunk('blog/signIn', async ([email, password, token], { rejectWithValue }) => {
-  console.log('signIn');
   try {
     const postOptions = {
       method: 'POST',
@@ -181,13 +178,8 @@ export const signIn = createAsyncThunk('blog/signIn', async ([email, password, t
     };
 
     const res = await fetch(`${_apiBase}/users/login`, postOptions);
-
-    if (!res.ok) {
-      throw new Error(`${res.status}`);
-    }
-
+    throwError(res);
     const data = await res.json();
-    console.log(data);
     return data;
   } catch (err) {
     return rejectWithValue(err.message);
@@ -195,7 +187,6 @@ export const signIn = createAsyncThunk('blog/signIn', async ([email, password, t
 });
 
 export const getUser = createAsyncThunk('blog/getUser', async (token, { rejectWithValue }) => {
-  console.log('getUser');
   try {
     const getOptions = {
       method: 'GET',
@@ -206,13 +197,9 @@ export const getUser = createAsyncThunk('blog/getUser', async (token, { rejectWi
     };
 
     const res = await fetch(`${_apiBase}/user`, getOptions);
-
-    if (!res.ok) {
-      throw new Error(`${res.status}`);
-    }
+    throwError(res);
 
     const data = await res.json();
-    console.log(data);
     return data;
   } catch (err) {
     return rejectWithValue(err.message);
@@ -222,9 +209,7 @@ export const getUser = createAsyncThunk('blog/getUser', async (token, { rejectWi
 export const editProfile = createAsyncThunk(
   'blog/editProfile',
   async ([username, email, password, image, token], { rejectWithValue }) => {
-    console.log('editProfile');
     try {
-      console.log([username, email, password, image, token]);
       const getOptions = {
         method: 'PUT',
         headers: {
@@ -242,16 +227,47 @@ export const editProfile = createAsyncThunk(
       };
 
       const res = await fetch(`${_apiBase}/user`, getOptions);
-
-      if (!res.ok) {
-        throw new Error(`${res.status}`);
-      }
-
+      throwError(res);
       const data = await res.json();
-      console.log(data);
       return data;
     } catch (err) {
       return rejectWithValue(err.message);
     }
   }
 );
+
+export const putLike = createAsyncThunk('blog/putLike', async ([id, token], { rejectWithValue }) => {
+  try {
+    const postOptions = {
+      method: 'POST',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    };
+
+    const res = await fetch(`${_apiBase}/articles/${id}/favorite`, postOptions);
+    throwError(res);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    return rejectWithValue(err.message);
+  }
+});
+
+export const deleteLike = createAsyncThunk('blog/deleteLike', async ([id, token], { rejectWithValue }) => {
+  try {
+    const deleteOptions = {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    };
+
+    const res = await fetch(`${_apiBase}/articles/${id}/favorite`, deleteOptions);
+    throwError(res);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    return rejectWithValue(err.message);
+  }
+});

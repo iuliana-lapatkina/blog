@@ -1,12 +1,13 @@
-import React, { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, Flex, Popconfirm, Button } from 'antd';
+import { Card, Flex, Popconfirm, Button, Rate, notification } from 'antd';
+import { HeartOutlined } from '@ant-design/icons';
 import { format, parseISO } from 'date-fns';
 import classNames from 'classnames/bind';
 import Markdown from 'markdown-to-jsx';
 
-import { getSingleArticle, deleteArticle } from '../../services/blogService';
+import { getSingleArticle, deleteArticle, getArticles, putLike, deleteLike } from '../../services/blogService';
 import TagList from '../TagList';
 
 import avatar from './user.jpg';
@@ -16,10 +17,13 @@ function Article(props) {
   const { articleInList } = props;
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const token = useSelector((state) => state.blog.token);
+  const page = useSelector((state) => state.blog.currentPage);
   const article = useSelector((state) => state.blog.currentArticle);
   const username = useSelector((state) => state.blog.username);
+  const isLogged = useSelector((state) => state.blog.isLogged);
 
   const { id } = useParams();
   const editLink = `/articles/${id}/edit`;
@@ -27,12 +31,71 @@ function Article(props) {
   const className = classNames({ [styles.isSingle]: !articleInList });
 
   useEffect(() => {
-    if (!articleInList) {
-      dispatch(getSingleArticle(id));
+    if (!articleInList && isLogged) {
+      dispatch(getSingleArticle([id, token]));
     }
-  }, [dispatch, id, articleInList]);
+    if (!articleInList && !isLogged) {
+      dispatch(getSingleArticle([id]));
+    }
+  }, [isLogged, dispatch, id, token, articleInList]);
 
   const item = !articleInList ? article : articleInList;
+
+  const { slug } = item;
+
+  const goBack = () => navigate(-1);
+
+  const openNotification = () => {
+    notification.open({
+      message: 'You are not registered',
+      description: 'Please sign up for the opportunity to like the article.',
+    });
+  };
+
+  const like = () => {
+    if (isLogged && articleInList) {
+      dispatch(putLike([slug, token]));
+      setTimeout(() => {
+        dispatch(getArticles([page, token]));
+      }, 300);
+    }
+    if (isLogged && !articleInList) {
+      dispatch(putLike([slug, token]));
+      setTimeout(() => {
+        dispatch(getSingleArticle([id, token]));
+      }, 300);
+    }
+    if (!isLogged) {
+      openNotification();
+    }
+    return false;
+  };
+
+  const dislike = () => {
+    if (isLogged && articleInList) {
+      dispatch(deleteLike([slug, token]));
+      setTimeout(() => {
+        dispatch(getArticles([page, token]));
+      }, 300);
+    }
+    if (isLogged && !articleInList) {
+      dispatch(deleteLike([slug, token]));
+      setTimeout(() => {
+        dispatch(getSingleArticle([id, token]));
+      }, 300);
+    }
+    return false;
+  };
+
+  const estimate = (e) => {
+    e.preventDefault();
+    return !item.favorited ? like() : dislike();
+  };
+
+  const deleteArt = () => {
+    dispatch(deleteArticle([token, id]));
+    goBack();
+  };
 
   let articleTitle;
   let articleDescription;
@@ -57,10 +120,6 @@ function Article(props) {
       );
   }
 
-  const deleteArt = () => {
-    dispatch(deleteArticle([token, id]));
-  };
-
   return item ? (
     <Card className={`${styles.card} ${className}`} bordered="false" bodyStyle={{ padding: '0' }}>
       <div className={styles['title-block']}>
@@ -68,8 +127,14 @@ function Article(props) {
           <div className={styles['title-likes']}>
             {articleTitle}
             <div className={styles.likes}>
-              <span>&#9825;</span>
-              <span>{item.favorites ? item.favoritesCount : 0}</span>
+              <Rate
+                character={<HeartOutlined />}
+                count={1}
+                onClick={(e) => estimate(e)}
+                value={item.favorited ? 1 : 0}
+                className={styles['like-icon']}
+              />
+              <span>{item.favoritesCount ? item.favoritesCount : 0}</span>
             </div>
           </div>
           {item.tagList ? <TagList single={!articleInList} tags={item.tagList} /> : null}
@@ -93,7 +158,7 @@ function Article(props) {
               />
             ) : null}
           </Flex>
-          {!articleInList && item.author && item.author.username && username === item.author.username ? (
+          {isLogged && !articleInList && item.author && item.author.username && username === item.author.username ? (
             <Flex className={styles.buttons} gap="small">
               <Popconfirm
                 className={styles.delete}
@@ -102,6 +167,7 @@ function Article(props) {
                 onConfirm={deleteArt}
                 okText="Yes"
                 cancelText="No"
+                placement="bottom"
               >
                 <Button danger>Delete</Button>
               </Popconfirm>
