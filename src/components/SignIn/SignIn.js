@@ -93,6 +93,7 @@ function SignIn() {
             })}
             className={`${styles.input} ${errors?.password && styles['warning-border']}`}
             placeholder="Password"
+            type="password"
           />
           <div>{errors?.password && <p className={styles.warning}>{errors?.password?.message || 'Error!'}</p>}</div>
         </label>

@@ -108,6 +108,7 @@ function SignUp() {
             })}
             className={`${styles.input} ${errors?.password && styles['warning-border']}`}
             placeholder="Password"
+            type="password"
           />
           <div>{errors?.password && <p className={styles.warning}>{errors?.password?.message || 'Error!'}</p>}</div>
         </label>
@@ -120,6 +121,7 @@ function SignUp() {
             })}
             className={`${styles.input} ${errors?.confirmPassword && styles['warning-border']}`}
             placeholder="Repeat password"
+            type="password"
           />
           <div>
             {watch('password') !== watch('confirmPassword') && <p className={styles.warning}>Passwords must match</p>}
