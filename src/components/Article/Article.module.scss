@@ -47,13 +47,14 @@
   cursor: pointer;
   height: 40px;
   width: 80px;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 24px;
   background-color: #fff;
   border-radius: 4px;
 }
 
 .delete {
+  transform: translate(-4px, 0px);
   color: #F5222D;
   border: 1px solid #F5222D;
 }
