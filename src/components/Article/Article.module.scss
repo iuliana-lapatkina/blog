@@ -54,9 +54,12 @@
 }
 
 .delete {
-  transform: translate(-4px, 0px);
   color: #F5222D;
   border: 1px solid #F5222D;
+
+  span {
+    transform: translate(-4px, 0px);
+  }
 }
 
 .edit {
