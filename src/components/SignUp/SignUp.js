@@ -71,6 +71,7 @@ function SignUp() {
             })}
             className={`${styles.input} ${errors?.username && styles['warning-border']}`}
             placeholder="Username"
+            type="text"
           />
           <div>{errors?.username && <p className={styles.warning}>{errors?.username?.message || 'Error!'}</p>}</div>
         </label>
